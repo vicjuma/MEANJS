@@ -1,6 +1,8 @@
 const http = require('http');
 const app = require('./app');
 
+
+// SETTING UP A DYNAMIC PORT TO ACCEPT BOTH A STRING AND AN INTEGER PORT
 const normalizePort = val => {
     const port = parseInt(val, 10);
   
@@ -12,8 +14,11 @@ const normalizePort = val => {
     }
     return false;
   };
+
   const port = normalizePort(process.env.PORT || '3000');
   app.set('port', port);
+
+  // SETTING UP AN ERROR HANDLER
   
   const errorHandler = error => {
     if (error.syscall !== 'listen') {
@@ -34,6 +39,8 @@ const normalizePort = val => {
         throw error;
     }
   };
+
+  // SETTING UP THE SERVER AND LISTENING TO IT
 
 const server = http.createServer(app);
 

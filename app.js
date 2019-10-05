@@ -1,39 +1,42 @@
+// IMPORTING OUR MODULES
+
 const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const Thing = require('./models/recipe');
+const Recipe = require('./models/recipe');
+const cors = require('cors');
 
-const app = express();
 
-mongoose.connect('mongodb+srv://victor:vicjuma@cluster0-0wmlu.mongodb.net/test?retryWrites=true&w=majority')
-  .then(() => {
-    console.log('Successfully connected to MongoDB Atlas!');
-  })
-  .catch((error) => {
-    console.log('Unable to connect to MongoDB Atlas!');
-    console.error(error);
-  });
+// SETTING UP THE CORS HEADERS
+
+app.use(cors());
+
+// SETTING UP THE DATABASE
+
+mongoose.connect('mongodb+srv://victor:vicjuma@cluster0-0wmlu.mongodb.net/victor?retryWrites=true&w=majority').then(() => {
+    console.log('database was successfully connected');
+}).catch((error) => {
+    console.log('there was an error connecting to the database');
+    console.log(error);
+});
 
 db = mongoose.connection;
+
+
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    next();
-  });
+// SETTING UP OUR ROUTES
 
-
-app.post('/api/stuff', (req, res, next) => {
-    const thing = new Thing({
+app.post('/api/recipes', (req, res, next) => {
+    const recipe = new Recipe({
       title: req.body.title,
       ingredients: req.body.ingredients,
       instructions: req.body.instructions,
       time: req.body.time,
       difficulty: req.body.difficulty
     });
-    thing.save().then(
+    recipe.save().then(
       () => {
         res.status(201).json({
           message: 'Post saved successfully!'
@@ -48,12 +51,12 @@ app.post('/api/stuff', (req, res, next) => {
     );
   });
 
-  app.get('/api/stuff/:id', (req, res, next) => {
-    Thing.findOne({
+  app.get('/api/recipes/:id', (req, res, next) => {
+    Recipe.findOne({
       _id: req.params.id
     }).then(
-      (thing) => {
-        res.status(200).json(thing);
+      (recipe) => {
+        res.status(200).json(recipe);
       }
     ).catch(
       (error) => {
@@ -64,10 +67,10 @@ app.post('/api/stuff', (req, res, next) => {
     );
   });
   
-  app.use('/api/stuff', (req, res, next) => {
-    Thing.find().then(
-      (things) => {
-        res.status(200).json(things);
+  app.use('/api/recipes', (req, res, next) => {
+    Recipe.find().then(
+      (recipes) => {
+        res.status(200).json(recipes);
       }
     ).catch(
       (error) => {
@@ -78,16 +81,16 @@ app.post('/api/stuff', (req, res, next) => {
     );
   });
 
-  app.put('/api/stuff/:id', (req, res, next) => {
-    const thing = new Thing({
+  app.put('/api/recipes/:id', (req, res, next) => {
+    const recipe = new Recipe({
       _id: req.params.id,
       title: req.body.title,
-      description: req.body.description,
-      imageUrl: req.body.imageUrl,
-      price: req.body.price,
-      userId: req.body.userId
+      ingredients: req.body.ingredients,
+      instructions: req.body.instructions,
+      time: req.body.time,
+      difficulty: req.body.difficulty
     });
-    Thing.updateOne({_id: req.params.id}, thing).then(
+    Recipe.updateOne({_id: req.params.id}, recipe).then(
       () => {
         res.status(201).json({
           message: 'Thing updated successfully!'
@@ -101,10 +104,9 @@ app.post('/api/stuff', (req, res, next) => {
       }
     );
   });
-
   
-  app.delete('/api/stuff/:id', (req, res, next) => {
-    Thing.deleteOne({_id: req.params.id}).then(
+  app.delete('/api/recipes/:id', (req, res, next) => {
+   Recipe.deleteOne({_id: req.params.id}).then(
       () => {
         res.status(200).json({
           message: 'Deleted!'
